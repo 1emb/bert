@@ -16,14 +16,22 @@ This approach leverages transfer learning from related tasks to improve performa
 ```
 .
 ├── src/
-│   ├── data_loader.py      # Data loading utilities
-│   ├── model.py            # BERT model with multiple-choice head
-│   ├── train.py            # Two-stage training script
-│   ├── evaluate.py         # Evaluation script
-│   └── config.py           # Configuration classes
-├── requirements.txt        # Python dependencies
-├── run_training.sh         # Quick start training script
-└── README.md              # This file
+│   ├── data_loader.py           # Data loading utilities
+│   ├── model.py                 # BERT model with multiple-choice head
+│   ├── train.py                 # Two-stage training script
+│   ├── train_max_accuracy.py    # Optimized training for max accuracy
+│   ├── evaluate.py              # Evaluation script
+│   ├── inference.py             # Example inference
+│   └── config.py                # Configuration classes
+├── run_training.sh              # Default training (balanced)
+├── run_training_bs16.sh         # Fast training (larger batch)
+├── run_training_max_accuracy.sh # Best accuracy (recommended)
+├── compare_approaches.sh        # Compare baseline vs two-stage
+├── test_setup.py                # Verify dependencies
+├── requirements.txt             # Python dependencies
+├── README.md                    # This file
+├── BATCH_SIZE_GUIDE.md          # Batch size optimization guide
+└── RTX3090_OPTIMIZATION.md      # RTX 3090 specific optimizations
 ```
 
 ## Installation
@@ -41,13 +49,31 @@ pip install -r requirements.txt
 
 ## Quick Start
 
-### Option 1: Using the provided script
+### Recommended: Maximum Accuracy (RTX 3090 or similar)
+
+If you have a high-end GPU and want the best possible accuracy:
+
+```bash
+bash run_training_max_accuracy.sh
+```
+
+**See [RTX3090_OPTIMIZATION.md](RTX3090_OPTIMIZATION.md) for detailed optimization guide.**
+
+### Option 1: Default training (balanced)
 
 ```bash
 bash run_training.sh
 ```
 
-### Option 2: Manual training
+### Option 2: Fast training (batch size 16)
+
+```bash
+bash run_training_bs16.sh
+```
+
+**See [BATCH_SIZE_GUIDE.md](BATCH_SIZE_GUIDE.md) for choosing the right batch size.**
+
+### Option 3: Manual training
 
 ```bash
 cd src
@@ -60,6 +86,16 @@ python train.py \
     --stage2_batch_size 8 \
     --stage2_lr 1e-5
 ```
+
+### Which Option Should I Choose?
+
+| Script | GPU Required | Training Time | Accuracy | Best For |
+|--------|--------------|---------------|----------|----------|
+| **run_training_max_accuracy.sh** | RTX 3090, 4090, A100 | ~12 hours | **67-69%** ⭐ | **Best accuracy** |
+| run_training.sh | GTX 1080, RTX 2060+ | ~7 hours | 66.5-67.5% | Balanced approach |
+| run_training_bs16.sh | RTX 3080, 3090, 4090 | ~4.5 hours | 66-67% | Fast experiments |
+
+**Recommendation for RTX 3090**: Use `run_training_max_accuracy.sh` for best results!
 
 ## Training Options
 
