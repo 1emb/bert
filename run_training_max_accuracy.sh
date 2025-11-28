@@ -4,6 +4,16 @@
 # Optimized for best possible performance on CommonsenseQA
 # Uses batch size 4 with gradient accumulation for stable training
 
+# Check for Python
+if command -v python3 &> /dev/null; then
+    PYTHON=python3
+elif command -v python &> /dev/null; then
+    PYTHON=python
+else
+    echo "❌ Error: Python not found"
+    exit 1
+fi
+
 echo "=========================================="
 echo "BERT Fine-tuning - Maximum Accuracy Mode"
 echo "=========================================="
@@ -48,7 +58,7 @@ cd src
 echo "Starting Stage 1: SWAG fine-tuning..."
 echo ""
 
-python train.py \
+$PYTHON train.py \
     --model_name bert-base-uncased \
     --max_length 256 \
     --stage1_dataset $STAGE1_DATASET \
@@ -71,7 +81,7 @@ echo ""
 echo "Final model: checkpoints/max_accuracy_final"
 echo ""
 echo "Evaluating on validation set..."
-python evaluate.py \
+$PYTHON evaluate.py \
     --model_path ../checkpoints/max_accuracy_final \
     --dataset commonsenseqa \
     --split validation \
