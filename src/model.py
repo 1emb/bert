@@ -101,18 +101,23 @@ class BertForMultipleChoice(nn.Module):
 
         # Load classifier config
         classifier_path = os.path.join(load_path, 'classifier.pt')
+        checkpoint_num_choices = None
+        dropout_prob = 0.1
+
         if os.path.exists(classifier_path):
             checkpoint = torch.load(classifier_path, map_location='cpu')
-            num_choices = checkpoint.get('num_choices', num_choices)
+            checkpoint_num_choices = checkpoint.get('num_choices', None)
             dropout_prob = checkpoint.get('dropout_prob', 0.1)
-        else:
-            dropout_prob = 0.1
 
-        # Initialize model
+        # Initialize model with requested num_choices
         model = cls(model_name=load_path, num_choices=num_choices, dropout_prob=dropout_prob)
 
-        # Load classifier weights if available
-        if os.path.exists(classifier_path):
+        # Only load classifier weights if num_choices matches
+        if os.path.exists(classifier_path) and checkpoint_num_choices == num_choices:
             model.classifier.load_state_dict(checkpoint['classifier'])
+            print(f"Loaded classifier weights for {num_choices} choices")
+        elif checkpoint_num_choices is not None and checkpoint_num_choices != num_choices:
+            print(f"Checkpoint has {checkpoint_num_choices} choices but model needs {num_choices} choices")
+            print(f"Keeping BERT weights, reinitializing classifier for {num_choices} choices")
 
         return model
